@@ -22,7 +22,7 @@ func (i interval) overlaps(ii interval) bool {
 }
 
 func main() {
-	file, err := os.Open("./input/sample.txt")
+	file, err := os.Open("./input/day-4.txt")
 
 	if err != nil {
 		log.Fatal("could not open file", err)
