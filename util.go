@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"strconv"
 )
 
 func ReadFile(path string) []string {
@@ -30,4 +31,29 @@ func MinInt(a, b int) int {
 	}
 
 	return a
+}
+
+func MaxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+
+	return b
+}
+
+func AbsInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+
+	return x
+}
+
+func Atoi(s string) int {
+	value, err := strconv.Atoi(s)
+	if err != nil {
+		log.Panic()
+	}
+
+	return value
 }
