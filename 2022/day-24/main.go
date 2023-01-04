@@ -23,12 +23,15 @@ func main() {
 	m, cells, start, end := parse(lines)
 	stepsToEnd := bfs(m, cells, start, end, 0)
 	fmt.Println("bfs = ", stepsToEnd)
-	//stepsToStart := bfs(m, cells, end, start, stepsToEnd)
-	//toEnd := bfs(m, cells, start, end, stepsToStart)
-	//fmt.Println("part2 = ", toEnd)
+	stepsToStart := bfs(m, cells, end, start, stepsToEnd)
+	toEnd := bfs(m, cells, start, end, stepsToStart)
+	fmt.Println("part2 = ", toEnd)
 }
 
 func bfs(m [][]int, cells []cell, start, end point, steps int) int {
+	if start.x == end.x && start.y == end.y {
+		return 0
+	}
 	queue := []point{}
 	queue = append(queue, start)
 	visited := map[string]bool{}
@@ -39,14 +42,14 @@ func bfs(m [][]int, cells []cell, start, end point, steps int) int {
 		size := len(queue)
 		for i := 0; i < size; i++ {
 			p := queue[i]
-			if p.x == end.x && p.y == end.y {
-				return steps
-			}
 			for _, dir := range dirs {
 				x := p.x + dir[0]
 				y := p.y + dir[1]
 				currState := "[" + toString(x) + "," + toString(y) + "]" + state
 				if x >= 0 && x < len(m) && y >= 0 && y < len(m[0]) && m[x][y] == 0 && !visited[currState] {
+					if x == end.x && y == end.y {
+						return steps + 1
+					}
 					queue = append(queue, point{x, y})
 					visited[currState] = true
 				}
