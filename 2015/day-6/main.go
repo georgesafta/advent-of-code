@@ -9,17 +9,17 @@ import (
 
 func main() {
 	lines := util.ReadFile("input.txt")
-	m := createGrid(lines)
+	m := createGrid(lines, []func(int) int{on, off, flip})
 	fmt.Println("lights on =", countOn(m))
-	grid := createIntensityGrid(lines)
-	fmt.Println("total =", total(grid))
+	m = createGrid(lines, []func(int) int{intensityOn, intensityOff, intensityFlip})
+	fmt.Println("total =", total(m))
 }
 
-func countOn(m [][]bool) int {
+func countOn(m [][]int) int {
 	count := 0
 	for _, row := range m {
 		for _, v := range row {
-			if v {
+			if v == 1 {
 				count++
 			}
 		}
@@ -39,23 +39,23 @@ func total(m [][]int) int {
 	return total
 }
 
-func createGrid(lines []string) [][]bool {
-	m := make([][]bool, 1000)
+func createGrid(lines []string, mutators []func(int) int) [][]int {
+	m := make([][]int, 1000)
 	for i := 0; i < 1000; i++ {
-		m[i] = make([]bool, 1000)
+		m[i] = make([]int, 1000)
 	}
 
 	for _, line := range lines {
-		mutator := on
+		mutator := mutators[0]
 		s := line
 		if strings.Contains(line, "turn on ") {
-			mutator = on
+			mutator = mutators[0]
 			s = s[8:]
 		} else if strings.Contains(line, "turn off ") {
-			mutator = off
+			mutator = mutators[1]
 			s = s[9:]
 		} else {
-			mutator = flip
+			mutator = mutators[2]
 			s = s[7:]
 		}
 		var xStart, xEnd, yStart, yEnd int
@@ -66,34 +66,7 @@ func createGrid(lines []string) [][]bool {
 	return m
 }
 
-func createIntensityGrid(lines []string) [][]int {
-	m := make([][]int, 1000)
-	for i := 0; i < 1000; i++ {
-		m[i] = make([]int, 1000)
-	}
-
-	for _, line := range lines {
-		mutator := intensityOn
-		s := line
-		if strings.Contains(line, "turn on ") {
-			mutator = intensityOn
-			s = s[8:]
-		} else if strings.Contains(line, "turn off ") {
-			mutator = intensityOff
-			s = s[9:]
-		} else {
-			mutator = insensityFlip
-			s = s[7:]
-		}
-		var xStart, xEnd, yStart, yEnd int
-		fmt.Sscanf(s, "%d,%d through %d,%d", &xStart, &yStart, &xEnd, &yEnd)
-		changeIntensity(m, xStart, yStart, xEnd, yEnd, mutator)
-	}
-
-	return m
-}
-
-func changeValues(m [][]bool, sRow, sCol, eRow, eCol int, mutator func(bool) bool) {
+func changeValues(m [][]int, sRow, sCol, eRow, eCol int, mutator func(int) int) {
 	for i := sRow; i <= eRow; i++ {
 		for j := sCol; j <= eCol; j++ {
 			m[i][j] = mutator(m[i][j])
@@ -101,24 +74,19 @@ func changeValues(m [][]bool, sRow, sCol, eRow, eCol int, mutator func(bool) boo
 	}
 }
 
-func changeIntensity(m [][]int, sRow, sCol, eRow, eCol int, mutator func(int) int) {
-	for i := sRow; i <= eRow; i++ {
-		for j := sCol; j <= eCol; j++ {
-			m[i][j] = mutator(m[i][j])
-		}
+func on(original int) int {
+	return 1
+}
+
+func off(original int) int {
+	return 0
+}
+
+func flip(original int) int {
+	if original == 1 {
+		return 0
 	}
-}
-
-func on(original bool) bool {
-	return true
-}
-
-func off(original bool) bool {
-	return false
-}
-
-func flip(original bool) bool {
-	return !original
+	return 1
 }
 
 func intensityOn(original int) int {
@@ -129,6 +97,6 @@ func intensityOff(original int) int {
 	return util.MaxInt(0, original-1)
 }
 
-func insensityFlip(original int) int {
+func intensityFlip(original int) int {
 	return original + 2
 }
